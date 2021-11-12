@@ -1,11 +1,12 @@
-function sendToSlack(fallback, fields, channel) {
-  const url = "■１■"
+// https://github.com/furukaw/google-form-to-slack/blob/master/script.gs
+
+function sendToSlack(fallback, fields, channel, url, desc) {
   const data = {
     "channel" : channel,
-    "username" : "Googleフォーム Bot",  // 1: bot 名
+    "username" : "GoogleForm Bot",  // 1: bot 名
     "attachments" : [{
       "fallback" : fallback,
-      "text" : "★３★",
+      "text" : desc,
       "fields": fields,
       "color": "good",  // 3: 左線の色
     }],
@@ -23,7 +24,7 @@ function sendToSlack(fallback, fields, channel) {
 }
 
 function test() {
-  sendToSlack("テスト通知確認です", [], "■２■");
+  sendToSlack("テスト通知確認です", [], "channel-name", "https://hooks.slack.com/services/T0CMXE9CJ/BFKKXLFCM/JSrSTxxxxxxxxxxxxx", "desc");
 }
 
 function responseToText(itemResponse) {
@@ -50,7 +51,14 @@ function responseToText(itemResponse) {
   }
 }
 
+// template copy and rename this.
 function onFormSubmit(e){
+
+  // update these three variables
+  const channelName = "";
+  const webhookUrl = "";
+  const desc = "";
+
   const itemResponses = e.response.getItemResponses();
 
   const fallback = itemResponses.map(function(itemResponse) {
@@ -66,5 +74,31 @@ function onFormSubmit(e){
     }
   });
 
-  sendToSlack(fallback, fields, "■２■");
+  sendToSlack(fallback, fields, channelName, webhookUrl, desc);
+}
+
+
+function onLevelChangeFormSubmit(e){
+
+  // update these three variables
+  const channelName = "level-change";
+  const webhookUrl = "https://hooks.slack.com/services/T0CMXE9CJ/Bxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  const desc = "";
+
+  const itemResponses = e.response.getItemResponses();
+
+  const fallback = itemResponses.map(function(itemResponse) {
+    return itemResponse.getItem().getTitle() + ": " + itemResponse.getResponse();
+  }).join("\n");
+
+  const fields = itemResponses.map(function(itemResponse) {
+    const value = responseToText(itemResponse);
+    return {
+      "title": itemResponse.getItem().getTitle(),
+      "value": value,
+      "short": false,  // 4: 左右２列で表示
+    }
+  });
+
+  sendToSlack(fallback, fields, channelName, webhookUrl, desc);
 }
